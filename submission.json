@@ -3,5 +3,7 @@
     "build": "run.py", 
     "library": ["src"], 
     "notebook": ["notebooks/run_notebook.ipynb"],
-    "targets": ["run-notebook", "analyze-results"]
+    "targets": ["run-notebook", "analyze-results"],
+    "dockerhub-id": "jil1119/docker-mesa-geo:latest",
+    "repository-id": "https://github.com/MuscularBrain/0527291751.git"
 }

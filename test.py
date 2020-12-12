@@ -14,6 +14,7 @@ import numpy as np
 
 # plot
 import matplotlib.pyplot as plt
+import seaborn as sns
 import gc
 
 # output
@@ -66,3 +67,21 @@ model_df = school.datacollector.get_model_vars_dataframe()
 model_df.to_csv('./test/output/model_df.csv', index = False)
 agent_df.to_csv('./test/output/agent_df.csv', index = False)
 
+
+ 
+# We add this here because our analysis.py worklow cannot be used with simplistic datasets
+# As this is not the intended usecase for the codebase. 
+
+dataframe_exposed_loc =agent_df
+dataframe_exposed_loc = dataframe_exposed_loc[dataframe_exposed_loc['health_status'] == 'exposed']
+exposed_locations = dataframe_exposed_loc.groupby(["unique_id"])["x", "y"].first()
+school_geometry = gpd.read_file(map_path)
+      
+ax = school_geometry.plot(color="white", edgecolor='black')
+sns.kdeplot(exposed_locations["x"], exposed_locations["y"], ax=ax)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_ylabel('')
+ax.set_xlabel('')
+ax.set_title(f'Heatmap of Exposed Locations', fontdict={'size':20})
+plt.savefig(f'./test/output/heatmap.png', dpi=400)

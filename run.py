@@ -8,8 +8,11 @@ import output_image
 
 
 arguments = list(sys.argv)
-
-target = arguments[1]
+try:
+    target = arguments[1]
+except IndexError:
+    # default to test if not specific argument provided
+    target = 'test'
 
 # open notebook for complete model run
 if target == 'run-notebook':
@@ -23,6 +26,7 @@ if target == 'analyze-results':
     
 if target == 'test':
     os.system('python test.py')
+    
 
 
     

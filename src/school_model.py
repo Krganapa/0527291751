@@ -550,17 +550,92 @@ class Classroom(GeoAgent):
         ### TODO: check literature for aerosal infection ###
         self.viral_load = max(self.viral_load-0.05, 0)
         
+    def generate_desks(self, shape, radius_desk=12, spacing_desk=20):
         
-    def generate_seats(self, N, width):
+        desks = []
+        minx, miny, maxx, maxy = shape.bounds
+        
+        x_start, y_start = minx + radius_desk, maxy - radius_desk
+        x_start += 0.2
+        y_start -= 0.2
+        desk = Point(x_start, y_start).buffer(radius_desk)
+        net_space = radius_desk + spacing_desk
+        
+        x_coordinate = x_start
+        y_coordinate = y_start
+        
+        while True:
+            desks.append(desk)        
+            
+            x_coordinate += net_space
+            
+            if (y_coordinate < miny) and (x_coordinate > maxx):         
+                break
+                        
+            if x_coordinate > maxx:
+                x_coordinate -= net_space
+                x_coordinate = x_start 
+                y_coordinate = y_coordinate - net_space
+                
+            
+            desk = Point(x_coordinate, y_coordinate).buffer(radius_desk)    
+        
+        desks = gpd.GeoSeries(desks)
+        desks  = desks[desks.apply(lambda desk: shape.intersects(desk))]
+        
+        return desks
+
+
+    def generate_seats_circular(self, shape, desks, N, num_children_per_desk=5):
+
+        def return_coords(desk, num_children_per_desk):
+            boundary = list(desk.boundary.coords)
+            step = len(boundary) // num_children_per_desk
+            boundary = pd.Series(boundary[::step])
+            boundary = boundary[:num_children_per_desk]
+            return boundary.apply(Point).values.tolist() 
+
+
+        result = desks.apply(return_coords, args=(num_children_per_desk,))
+        dataframe = pd.DataFrame((desks, result)).T
+        dataframe = dataframe.rename({0:'desk', 1:'seats'}, axis=1)
+        
+        desk_series = dataframe.apply(lambda row: [row['desk'] for i in range(len(row['seats']))], axis=1)
+        
+        desk_series = desk_series.sum()
+        result = result.sum()
+        
+        final_df = pd.DataFrame()
+        final_df['desk'] = desk_series
+        final_df['seat'] = result
+        
+        final_df['desk_id'] = final_df['desk'].apply(str)
+        
+        to_drop = final_df[(gpd.GeoSeries(final_df['seat']).distance(shape) >= 0.1) & (~final_df['seat'].apply(lambda seat: shape.contains(seat)))].drop_duplicates(subset=['desk_id'])
+        to_drop = to_drop.desk_id.values
+        
+        
+        return final_df[~final_df.desk_id.isin(to_drop)][:N]
+
+
+    def generate_seats(self, N, width, style='individual'):
+        
         self.seats = []
-        center = self.shape.centroid
-        md = math.ceil(N**(1/2))
-        pnt = Point(center.x - width*md//2, center.y - width*md//2)
-        for i in range(md):
-            for j in range(md+1):
-                self.seats.append(Point(pnt.x + i*width, pnt.y + j*width))
-                
-                
+        shape = self.shape
+        
+        if style == 'individual':         
+            center = shape.centroid
+            md = math.ceil(N**(1/2))
+            pnt = Point(center.x - width*md//2, center.y - width*md//2)
+            for i in range(md):
+                for j in range(md+1):
+                    self.seats.append(Point(pnt.x + i*width, pnt.y + j*width))
+        
+        elif style == 'circular':
+            dataframe_seats_desks = self.generate_seats_circular(shape, self.generate_desks(shape), N)
+            self.seats = dataframe_seats_desks.seat.tolist()
+            self.desks = dict(dataframe_seats_desks[['desk_id', 'desk']].drop_duplicates(['desk_id']).set_index('desk_id')['desk'])
+                                
     def generate_seats_lunch(self, xwidth, ywidth):
         
         self.seats = []
@@ -699,12 +774,15 @@ class School(Model):
             remaining_size = N%len(rooms)
 
             for i, classroom in zip(range(len(rooms)), rooms):
-                
-                classroom.generate_seats(class_size, self.seat_dist)
+                prob_circular = np.random.choice([True, False], p=[0.5, 0.5])
+                if prob_circular:
+                    classroom.generate_seats(class_size, self.seat_dist, style='circular')
+                else:
+                    classroom.generate_seats(class_size, self.seat_dist)
                 classroom.schedule_id = self.schedule_ids[i//partition_size]
                 
-                for idx in range(class_size):                    
-                    pnt = classroom.seats[idx]
+                for idx in range(class_size):
+                    pnt = classroom.seats[idx-1]
                     mask_on = np.random.choice([True, False], p=[mask_prob, 1-mask_prob])
                     agent_point = Student(model=self, shape=pnt, unique_id="S"+str(self.__student_id), room=classroom, mask_on=mask_on)
                     
@@ -714,7 +792,9 @@ class School(Model):
 
                 # spread remaining student into all classrooms
                 if remaining_size > 0:
-                    pnt = classroom.seats[class_size]
+                        
+                    pnt = classroom.seats[class_size-2]
+                
                     mask_on = np.random.choice([True, False], p=[mask_prob, 1-mask_prob])
                     agent_point = Student(model=self, shape=pnt, unique_id="S"+str(self.__student_id), room=classroom, mask_on=mask_on)
                     

@@ -36,18 +36,18 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-map_path = "./test/testdata/school.shp"
+map_path = "./test/testdata/schoollayout1.shp"
 schedule_path = "./test/testdata/small_schedule.csv" 
 schedule_steps = 5 # full day_schedule steps should be 90
 
 # two types of parameter setups available for batchrunner
 # pre-setup for fixed/variable parameter dictionaries (consistant with mesa batchrunner)
 ######################
-grade_N = 20
-KG_N = 20
-preschool_N = 20
+grade_N = 350
+KG_N = 50
+preschool_N = 50
 special_education_N = 10
-faculty_N = 10
+faculty_N = 40
 seat_dist = 12
 mask_prob = 0.516
 days = 5
@@ -55,7 +55,7 @@ max_steps = days*schedule_steps
 iterations = 1
 
 school = School(map_path, schedule_path, grade_N, KG_N, preschool_N, special_education_N, 
-                 faculty_N, seat_dist, init_patient=3, attend_rate=1, mask_prob=0.5, inclass_lunch=False, username="xyzabc")
+                 faculty_N, seat_dist, init_patient=3, attend_rate=1, mask_prob=0.5, inclass_lunch=True, username="xyzabc")
 
 
 while school.running and school.schedule.steps < 1:

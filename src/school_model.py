@@ -783,7 +783,8 @@ class School(Model):
                 classroom.schedule_id = self.schedule_ids[i//partition_size]
                 
                 for idx in range(class_size):
-                    pnt = classroom.seats[idx-1]
+                    pnt = classroom.seats[idx]
+                    #pnt = classroom.seats[idx-1]
                     mask_on = np.random.choice([True, False], p=[mask_prob, 1-mask_prob])
                     agent_point = Student(model=self, shape=pnt, unique_id="S"+str(self.__student_id), room=classroom, mask_on=mask_on)
                     
@@ -794,7 +795,7 @@ class School(Model):
                 # spread remaining student into all classrooms
                 if remaining_size > 0:
                         
-                    pnt = classroom.seats[class_size-2]
+                    pnt = classroom.seats[class_size] #classroom.seats[class_size-2]
                 
                     mask_on = np.random.choice([True, False], p=[mask_prob, 1-mask_prob])
                     agent_point = Student(model=self, shape=pnt, unique_id="S"+str(self.__student_id), room=classroom, mask_on=mask_on)

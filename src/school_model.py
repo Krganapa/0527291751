@@ -776,7 +776,8 @@ class School(Model):
             for i, classroom in zip(range(len(rooms)), rooms):
                 prob_circular = np.random.choice([True, False], p=[0.5, 0.5])
                 if prob_circular:
-                    classroom.generate_seats(class_size, self.seat_dist, style='circular')
+                    classroom.generate_seats(class_size, self.seat_dist)
+                    #classroom.generate_seats(class_size, self.seat_dist, style='circular')
                 else:
                     classroom.generate_seats(class_size, self.seat_dist)
                 classroom.schedule_id = self.schedule_ids[i//partition_size]

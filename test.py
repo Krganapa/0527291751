@@ -1,5 +1,7 @@
 import sys
 import os
+import sys
+
 sys.path.append('./src')
 os.chdir(sys.path[0])
 
@@ -43,7 +45,7 @@ schedule_steps = 5 # full day_schedule steps should be 90
 # two types of parameter setups available for batchrunner
 # pre-setup for fixed/variable parameter dictionaries (consistant with mesa batchrunner)
 ######################
-grade_N = 350
+grade_N = int(list(sys.argv)[1])
 KG_N = 50
 preschool_N = 50
 special_education_N = 10

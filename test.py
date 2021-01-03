@@ -38,7 +38,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-map_path = "./test/testdata/schoollayout1.shp"
+map_path = "./test/testdata/school.shp"
 schedule_path = "./test/testdata/small_schedule.csv" 
 schedule_steps = 5 # full day_schedule steps should be 90
 

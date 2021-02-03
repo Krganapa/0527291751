@@ -25,8 +25,7 @@ if target == 'analyze-results':
     output_image.analyze_model_result(model_out_path=filepath)
     
 if target == 'test':
-    num_students = int(arguments[2])
-    os.system(f'python test.py {num_students}')
+    os.system(f'python test.py')
     
 
 

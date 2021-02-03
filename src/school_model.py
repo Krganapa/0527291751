@@ -634,24 +634,6 @@ class Classroom(GeoAgent):
         # should change to volume of room later
         self.viral_load += len([a for a in occupants if a.health_status != "healthy"])/self.shape.area
         
-        # Don't run anything at this point
-        # intended for aerosal transmission
-        # '''
-        # for agent in occupants:
-        #     ### TODO: check literature for aerosal infection ###
-        #     if issubclass(type(agent), Human):
-        #         prob_exposed = self.viral_load/100
-                
-        #         if agent.mask:
-        #             prob_exposed -= 0.1 # particularly here mask effect on room aerosal transmission
-        #             if prob_exposed < 0: 
-        #                 prob_exposed = 0
-                
-        #         if np.random.choice([True, False], p = [prob_exposed, 1-prob_exposed]):
-        #             agent.health_status = 'exposed'
-        # ''' 
-        # ventilation natrually
-        ### TODO: check literature for aerosal infection ###
         self.viral_load = max(self.viral_load-0.002, 0)
         
         if self.schedule_id is not None:
@@ -1083,7 +1065,6 @@ class School(Model):
 
                 for student in to_expose:
                     student.health_status = 'exposed'
-            
             
         for a in self.schedule.agents[:]:
             if issubclass(type(a), Human):

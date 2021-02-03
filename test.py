@@ -42,14 +42,19 @@ map_path = "./test/testdata/schoollayout1.shp" #/oasis/scratch/comet/geoact/temp
 schedule_path = "./test/testdata/small_schedule.csv" 
 schedule_steps = 5 # full day_schedule steps should be 90
 
-# two types of parameter setups available for batchrunner
-# pre-setup for fixed/variable parameter dictionaries (consistant with mesa batchrunner)
+# Trying to get this out of config files
+parser_schoolparams = configparser.ConfigParser()
+parser_schoolparams.read('./config/schoolparams.ini')
+school_population = parser_schoolparams['SCHOOL_POPULATION']
+
 ######################
-grade_N = int(list(sys.argv)[1])
-KG_N = 50
-preschool_N = 50
-special_education_N = 10
-faculty_N = 40
+grade_N = int(school_population['grade_N'])
+KG_N = int(school_population['KG_N'])
+preschool_N = int(school_population['preschool_N'])
+special_education_N = int(school_population['special_education_N'])
+faculty_N = int(school_population['faculty_N'])
+#####################
+
 seat_dist = 12
 mask_prob = 0.516
 days = 5

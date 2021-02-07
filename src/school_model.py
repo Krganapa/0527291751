@@ -241,7 +241,6 @@ class Human(GeoAgent):
         self.tested = False
         self.vaccinated = False
         
-        # UPDATE 10/17: delay infection by 1 day to avoid infection explosion
         self.infective = False
         
         # symptom onset countdown config
@@ -386,13 +385,16 @@ class Human(GeoAgent):
                         move_spread = None
 
         if move_spread is not None:
-            minx, miny, maxx, maxy = move_spread.bounds
-            while True:
-                pnt = Point(random.uniform(minx, maxx), random.uniform(miny, maxy))            
-                # check if point lies in true area of polygon
-                if move_spread.contains(pnt):
-                    self.update_shape(pnt)
-                    break
+            try:
+                minx, miny, maxx, maxy = move_spread.bounds           
+                while True:
+                    pnt = Point(random.uniform(minx, maxx), random.uniform(miny, maxy))            
+                    # check if point lies in true area of polygon
+                    if move_spread.contains(pnt):
+                        self.update_shape(pnt)
+                        break
+            except:
+                move_spread = None 
     
     
     def plot(self):
@@ -891,14 +893,16 @@ class School(Model):
             remaining_size = N%len(rooms)
 
             for i, classroom in zip(range(len(rooms)), rooms):
+                classroom.generate_seats(class_size, self.seat_dist)
+                classroom.seating_pattern = 'individual'
                 #Assigning a probability for circular rooms.
-                prob_circular = np.random.choice([True, False], p=[0.5, 0.5])
-                if prob_circular:
-                    classroom.generate_seats(class_size, self.seat_dist, style='circular')
-                    classroom.seating_pattern = 'circular'
-                else:
-                    classroom.generate_seats(class_size, self.seat_dist)
-                    classroom.seating_pattern = 'individual'
+                #prob_circular = np.random.choice([True, False], p=[0, 1]) # Muting out circular desks because test data does not support it.
+                #if prob_circular:
+                    #classroom.generate_seats(class_size, self.seat_dist, style='circular')
+                    #classroom.seating_pattern = 'circular'
+                #else:
+                    #classroom.generate_seats(class_size, self.seat_dist)
+                    #classroom.seating_pattern = 'individual'
 
                 classroom.schedule_id = self.schedule_ids[i//partition_size]
                 
@@ -951,7 +955,7 @@ class School(Model):
                     remaining_size -= 1
 
 
-                #add teacher to class
+                # add teacher to class
                 pnt = generate_random(classroom.shape)
                 agent_point = Teacher(model=self, shape=pnt, unique_id="T"+str(self.__teacher_id), room=classroom)
                 

@@ -2,9 +2,7 @@
 token.pickle
 credentials.json
 
-
-# senstive data contend, access available on request
-schedule_data/
+# sensitive map files
 layouts/
 
 

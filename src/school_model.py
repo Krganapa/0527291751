@@ -107,7 +107,6 @@ class School(Model):
 
         
         
-        
         school_gdf = gpd.read_file(map_path)
         # minx miny maxx maxy
         # use minx maxy

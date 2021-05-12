@@ -336,17 +336,26 @@ class Student(Human):
         parser.read(config_file_path_prefix + viz_ini_file)
         student_viz_params = parser['STUDENT']
 
+
+        school_params_ini = 'schoolparams.ini'
+        parser_school = configparser.ConfigParser()
+        parser_school.read(config_file_path_prefix + school_params_ini)
+        interventions = parser_school['INTERVENTION']
+
         self.grade = self.room.room_type.replace('classroom_', '')
         
         
         # mask setup
-        self.mask = mask_on      
-        mask_probs = [eval(parser_npi['MASK_PROB']['cotton']), 
-                      eval(parser_npi['MASK_PROB']['multilayer']),
-                      eval(parser_npi['MASK_PROB']['surgical']),
-                      eval(parser_npi['MASK_PROB']['n95'])]
+        self.mask = mask_on
+
+
+        # mask_probs = [eval(parser_npi['MASK_PROB']['cotton']), 
+        #               eval(parser_npi['MASK_PROB']['multilayer']),
+        #               eval(parser_npi['MASK_PROB']['surgical']),
+        #               eval(parser_npi['MASK_PROB']['n95'])]
+
         if mask_on:
-            self.mask_type = np.random.choice(['Cotton', 'Multilayer', 'Surgical', 'N95'], p = mask_probs)
+            self.mask_type = interventions['student_mask']#np.random.choice(['Cotton', 'Multilayer', 'Surgical', 'N95'], p = mask_probs)
         else:
             self.mask_type = None
         self.mask_passage_prob = trans_rate.return_mask_passage_prob(self.mask_type)
@@ -505,7 +514,7 @@ class Teacher(Human):
             self.mask_type = np.random.choice(['Cotton', 'Multilayer', 'Surgical', 'N95'], p = mask_probs)
         else:
             self.mask_type = None
-        self.mask_passage_prob = trans_rate.return_mask_passage_prob(self.mask_type)
+        self.mask_passage_prob = float(trans_rate.return_mask_passage_prob(self.mask_type))
         
         
         

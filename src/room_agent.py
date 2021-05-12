@@ -71,7 +71,7 @@ class Classroom(GeoAgent):
         self.height = 12
 
         # airflow ventiliation type
-        self.environment = eval(school_intervention_params['ventilation_type'])
+        self.environment = school_intervention_params['ventilation_type']
     
     def step(self):
         # roll weighted probability for current step having in-class activity

@@ -118,7 +118,8 @@ grouped_by_room = joined.groupby('Id')
 
 ax = school_geometry.plot(color="white", edgecolor='black')
 
-unique_rooms = grouped_by_room.Id.unique()
+
+unique_rooms = grouped_by_room['Id'].reset_index()['Id'].unique()
 print('Unique room type', type(unique_rooms))
 
 for grp_id in unique_rooms:

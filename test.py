@@ -31,8 +31,8 @@ import os
 
 
 map_path = "/home/geoact/schoollayout1/schoollayout1_processed.shp" #"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp" # "/home/geoact/schoollayout1/schoollayout1_processed.shp" #"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp"
-schedule_path = "/home/geoact/schedule_data/small_schedule.csv" #"/home/geoact/schedule_data/day_schedule.csv" #"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
-schedule_steps = 5 # full day_schedule steps should be 90
+schedule_path = "/home/geoact/schedule_data/day_schedule.csv" #"/home/geoact/schedule_data/day_schedule.csv" #"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
+schedule_steps = 90 # full day_schedule steps should be 90
 
 # Trying to get this out of config files
 parser_schoolparams = configparser.ConfigParser()
@@ -117,10 +117,7 @@ joined = gpd.sjoin(exposed_locations, school_geometry, op='intersects')
 grouped_by_room = joined.groupby('Id')
 
 ax = school_geometry.plot(color="white", edgecolor='black')
-
-
-unique_rooms = grouped_by_room['Id'].reset_index()['Id'].unique()
-print('Unique room type', type(unique_rooms))
+unique_rooms = joined['Id'].unique()
 
 for grp_id in unique_rooms:
     minidf = grouped_by_room.get_group(grp_id)

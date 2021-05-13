@@ -30,9 +30,9 @@ import os
 
 
 
-map_path = "/home/geoact/schoollayout1/schoollayout1_processed.shp" #"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp" #"/home/geoact/layouts/schoollayout1.shp" #"./test/testdata/schoollayout1.shp"
-schedule_path = "/home/geoact/schedule_data/day_schedule.csv" #"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
-schedule_steps = 90 # full day_schedule steps should be 90
+map_path = "/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp" # "/home/geoact/schoollayout1/schoollayout1_processed.shp" #"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp"
+schedule_path = "/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/small_schedule.csv" #"/home/geoact/schedule_data/day_schedule.csv" #"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
+schedule_steps = 5 # full day_schedule steps should be 90
 
 # Trying to get this out of config files
 parser_schoolparams = configparser.ConfigParser()

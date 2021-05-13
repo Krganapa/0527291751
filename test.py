@@ -8,6 +8,8 @@ os.chdir(sys.path[0])
 
 # data Analysis 
 import geopandas as gpd
+from shapely.geometry import Point
+import numpy as np
 
 # plot
 import matplotlib.pyplot as plt
@@ -28,8 +30,8 @@ import os
 
 
 
-map_path = "/home/geoact/schoollayout1/schoollayout1_processed.shp"#"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp" #"/home/geoact/layouts/schoollayout1.shp" #"./test/testdata/schoollayout1.shp"
-schedule_path = "/home/geoact/schedule_data/day_schedule.csv"#"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
+map_path = "/home/geoact/schoollayout1/schoollayout1_processed.shp" #"/Users/kaushikramganapathy/Downloads/temp_project/layouts/schoollayout1/schoollayout1_processed.shp" #"/home/geoact/layouts/schoollayout1.shp" #"./test/testdata/schoollayout1.shp"
+schedule_path = "/home/geoact/schedule_data/day_schedule.csv" #"/Users/kaushikramganapathy/testschoolmodel/0527291751/schedule_data/day_schedule.csv" 
 schedule_steps = 90 # full day_schedule steps should be 90
 
 # Trying to get this out of config files
@@ -97,13 +99,31 @@ plt.clf()
 # We add this here because our analysis.py worklow cannot be used with simplistic datasets
 # As this is not the intended usecase for the codebase. 
 
-dataframe_exposed_loc =agent_df
+dataframe_exposed_loc = agent_df
 dataframe_exposed_loc = dataframe_exposed_loc[dataframe_exposed_loc['health_status'] == 'exposed']
+init_infected = agent_df[agent_df.health_status=='exposed'].sort_values(by='Step')[:3]
+
 exposed_locations = dataframe_exposed_loc.groupby(["unique_id"])["x", "y"].first()
 school_geometry = gpd.read_file(map_path)
-      
+
+exposed_locations['geometry'] = exposed_locations.apply(lambda row: Point(row['x'], row['y']), axis = 1)
+init_infected['geometry'] = init_infected.apply(lambda row: Point(row['x'], row['y']), axis = 1)
+
+exposed_locations = gpd.GeoDataFrame(exposed_locations)
+init_infected = gpd.GeoDataFrame(init_infected)
+
+
+joined = gpd.sjoin(exposed_locations, school_geometry, op='intersects')
+grouped_by_room = joined.groupby('Id')
+
 ax = school_geometry.plot(color="white", edgecolor='black')
-sns.kdeplot(exposed_locations["x"], exposed_locations["y"], ax=ax, fill=True, cmap='YlOrBr', alpha=0.45)
+
+for grp_id in grouped_by_room.Id.unique():
+    minidf = grouped_by_room.get_group(grp_id)
+    sns.kdeplot(data=minidf, x='x', y='y', fill=True, thresh=0.75, alpha=0.50, ax=ax, cmap='YlOrBr')
+    
+init_infected.plot(ax=ax, marker='^', markersize=3, color="None", edgecolor='black', linewidth=0.5)
+
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_ylabel('')

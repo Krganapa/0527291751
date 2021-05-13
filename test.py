@@ -118,7 +118,10 @@ grouped_by_room = joined.groupby('Id')
 
 ax = school_geometry.plot(color="white", edgecolor='black')
 
-for grp_id in grouped_by_room.Id.unique():
+unique_rooms = grouped_by_room.Id.unique()
+print('Unique room type', type(unique_rooms))
+
+for grp_id in unique_rooms:
     minidf = grouped_by_room.get_group(grp_id)
     sns.kdeplot(data=minidf, x='x', y='y', fill=True, thresh=0.75, alpha=0.50, ax=ax, cmap='YlOrBr')
     
